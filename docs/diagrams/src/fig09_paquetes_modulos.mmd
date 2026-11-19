@@ -1,0 +1,33 @@
+flowchart TB
+    subgraph FE["Frontend PWA (frontend/src/)"]
+        direction TB
+        FE_PAGES["pages/\n(13 Módulos)"]
+        FE_COMP["components/\n(AppShell, SyncCenter, LotTrace)"]
+        FE_DOM["domain/ & utils/\n(calculations.ts, exporters.ts)"]
+        FE_DB["db/\n(Dexie IndexedDB + syncEngine.ts)"]
+        FE_API["api/ & auth/\n(client.ts, AuthContext.tsx)"]
+        FE_SW["sw.ts\n(Workbox SW)"]
+
+        FE_PAGES --> FE_COMP
+        FE_PAGES --> FE_DOM
+        FE_PAGES --> FE_DB
+        FE_COMP --> FE_DB
+        FE_DB --> FE_API
+        FE_API -. "App Shell" .-> FE_SW
+    end
+
+    subgraph BE["Backend Modular (backend/src/sajona/)"]
+        direction TB
+        BE_PRES["presentation/\n(routers.py, dependencies.py)"]
+        BE_APP["application/\n(services, sync_service, dto, rbac)"]
+        BE_DOM["domain/\n(entities, enums, rules, exceptions)"]
+        BE_INF["infrastructure/\n(models, repositories, security, audit)"]
+
+        BE_PRES --> BE_APP
+        BE_PRES -. "DI" .-> BE_INF
+        BE_APP --> BE_DOM
+        BE_INF --> BE_APP
+        BE_INF --> BE_DOM
+    end
+
+    FE_API <-->|"HTTPS REST /api/v1/*"| BE_PRES

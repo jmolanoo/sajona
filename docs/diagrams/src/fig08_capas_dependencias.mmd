@@ -1,0 +1,14 @@
+flowchart TB
+    L4["Capa 4: Presentación (sajona.presentation)\nrouters.py (/health, /auth, /admin, /entities, /sync)\ndependencies.py (DI + JWT) | main.py (CORS, CorrelationID, Errores)"]
+
+    L3["Capa 3: Infraestructura (sajona.infrastructure)\nmodels.py & database.py (SQLAlchemy 2 + PG16)\nrepositories.py & mappers.py | security.py (Argon2id/JWT) | audit_logger.py"]
+
+    L2["Capa 2: Aplicación (sajona.application)\nauth_service.py | produccion_service.py | sync_service.py\nentity_factory.py | rbac.py | ports.py (Protocolos) | dto.py"]
+
+    L1["Capa 1: Dominio Puro (sajona.domain — 0 Imports Externos)\nentities.py (SyncMetadata, Lotes, Cosecha, PostCosecha)\nenums.py | rules.py (Supervivencia, Bajas, Secado, %CBD/%THC) | exceptions.py"]
+
+    L4 --> L2
+    L4 -. "Composition Root" .-> L3
+    L3 --> L2
+    L3 --> L1
+    L2 --> L1

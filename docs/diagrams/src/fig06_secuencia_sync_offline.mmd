@@ -1,0 +1,32 @@
+sequenceDiagram
+    actor OP as Operario Móvil
+    participant UI as PWA React UI
+    participant DB as IndexedDB (Dexie)
+    participant SW as Service Worker
+    participant API as Backend SyncService
+    participant PG as PostgreSQL 16
+
+    OP->>UI: 1. Crea/edita registro sin señal
+    UI->>DB: 2. Guarda entidad (status=pending)
+    UI->>DB: 3. Encola outbox (client_mutation_id)
+    UI-->>OP: 4. Muestra registro + Badge Pendiente
+    UI->>SW: 5. Registra Background Sync
+
+    Note over OP,PG: El dispositivo recupera señal 4G / Wi-Fi
+    SW-->>UI: 6. Dispara SAJONA_TRIGGER_SYNC
+    UI->>DB: 7. Lee mutaciones en orden topológico
+    UI->>API: 8. POST /api/v1/sync/push
+    API->>PG: 9. Verifica processed_mutations
+    alt Mutación nueva y versión válida
+        API->>PG: 10. Aplica entidad + version + audit_logs
+        API->>PG: 11. Guarda client_mutation_id
+        API-->>UI: 12. status=applied + server_record
+    else Reintento tras corte previo de red
+        API-->>UI: 13. status=duplicate (sin duplicar)
+    end
+    UI->>DB: 14. Marca synced y limpia Outbox
+    UI->>API: 15. GET /api/v1/sync/pull?since=cursor
+    API->>PG: 16. Consulta deltas y soft-deletes
+    API-->>UI: 17. changes{} + nuevo server_cursor
+    UI->>DB: 18. Fusiona deltas sin pisar pendientes
+    UI-->>OP: 19. Indicador "En línea • Sincronizado"

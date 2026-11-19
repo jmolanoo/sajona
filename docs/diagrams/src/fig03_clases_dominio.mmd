@@ -1,0 +1,105 @@
+classDiagram
+    class SyncMetadata {
+        +UUID id
+        +int version
+        +datetime created_at
+        +datetime updated_at
+        +datetime deleted_at
+    }
+    class PropagacionLote {
+        +str codigo_lote
+        +date fecha_siembra
+        +TipoPropagacion tipo_propagacion
+        +UUID variedad_id
+        +TipoIncorporacion tipo_incorporacion
+        +int cantidad_material
+        +int cantidad_plantas_madre
+        +EstadoLote estado
+    }
+    class TransplanteRegistro {
+        +UUID lote_id
+        +EtapaTransplante etapa
+        +TipoLoteTransplante tipo_lote
+        +date fecha_transplante
+        +UUID ubicacion_id
+        +str cama
+        +int cantidad_buenas
+        +int cantidad_malas
+        +Decimal porcentaje_buenas
+        +Decimal porcentaje_malas
+    }
+    class PlantaMadreRegistro {
+        +UUID lote_id
+        +str numero_planta
+        +date fecha_siembra
+        +str lugar_siembra
+        +str estado
+    }
+    class ExtraccionMaterialRegistro {
+        +UUID lote_id
+        +UUID planta_madre_id
+        +date fecha_extraccion
+        +FaseCultivo fase
+        +int cantidad_esquejes
+        +int cantidad_semillas
+    }
+    class ControlFaseRegistro {
+        +UUID lote_id
+        +FaseCultivo fase_cultivo
+        +date fecha_inicio
+        +date fecha_fin
+        +date fecha_descarte
+        +UUID tipo_complicacion_id
+        +EstadoRevision estado_revision
+    }
+    class CosechaRegistro {
+        +UUID lote_id
+        +date fecha_suelo
+        +date fecha_cosecha
+        +int numero_plantas
+        +str cama
+        +int dias_floracion
+        +Decimal peso_verde
+    }
+    class PostCosechaRegistro {
+        +UUID cosecha_id
+        +UUID lote_id
+        +date fecha_ini_secado
+        +date fecha_fin_secado
+        +Decimal peso_flor_verde
+        +Decimal peso_flor_seco
+        +Decimal porcentaje_cbd
+        +Decimal porcentaje_thc
+    }
+    class BajaRegistro {
+        +UUID lote_id
+        +date fecha_baja
+        +int cantidad
+        +FaseCultivo fase_cultivo
+    }
+    class ReglasAgronomicas {
+        +calcular_supervivencia_transplante()
+        +validar_baja_contra_saldo()
+        +validar_porcentaje_cannabinoide()
+        +calcular_resumen_secado()
+        +calcular_dias_floracion()
+    }
+
+    SyncMetadata <|-- PropagacionLote
+    SyncMetadata <|-- TransplanteRegistro
+    SyncMetadata <|-- PlantaMadreRegistro
+    SyncMetadata <|-- ExtraccionMaterialRegistro
+    SyncMetadata <|-- ControlFaseRegistro
+    SyncMetadata <|-- CosechaRegistro
+    SyncMetadata <|-- PostCosechaRegistro
+    SyncMetadata <|-- BajaRegistro
+    PropagacionLote "1" --> "0..*" TransplanteRegistro
+    PropagacionLote "1" --> "0..*" PlantaMadreRegistro
+    PlantaMadreRegistro "1" --> "0..*" ExtraccionMaterialRegistro
+    PropagacionLote "1" --> "0..*" ControlFaseRegistro
+    PropagacionLote "1" --> "0..*" CosechaRegistro
+    CosechaRegistro "1" --> "0..*" PostCosechaRegistro
+    PropagacionLote "1" --> "0..*" BajaRegistro
+    TransplanteRegistro ..> ReglasAgronomicas : usa
+    PostCosechaRegistro ..> ReglasAgronomicas : usa
+    BajaRegistro ..> ReglasAgronomicas : usa

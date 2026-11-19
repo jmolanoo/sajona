@@ -1,0 +1,33 @@
+flowchart LR
+    subgraph ACTORES["Actores del Ecosistema SAJONA ADE"]
+        ADMIN["Administrador\n(RBAC, Usuarios, Auditoría)"]
+        JEFE["Jefe de Proyecto\n(Gestión Agronómica y Trazabilidad)"]
+        OP["Operario de Campo\n(Registro en Invernadero y Lotes)"]
+        CONS["Usuario de Consulta\n(Auditoría y Reportes Gerenciales)"]
+    end
+
+    subgraph CLIENTE["Dispositivo Móvil / Escritorio (Offline-First)"]
+        PWA["SAJONA PWA\nReact 18 + TypeScript + Workbox SW"]
+        IDB[("IndexedDB\n(Dexie.js + Outbox)")]
+        PWA <--> IDB
+    end
+
+    subgraph VPS["Infraestructura Desplegada en VPS (Docker Compose)"]
+        TUNNEL["Túnel HTTPS TLS 1.3\n(sajona-tunnel / cloudflared)"]
+        PROXY["Proxy Inverso\n(sajona-proxy / Nginx)"]
+        API["Backend Modular\n(sajona-backend / FastAPI)"]
+        DB[("Base de Datos\n(sajona-db / PostgreSQL 16)")]
+        AUD[("Volumen Auditoría\n(audit.jsonl Append-Only)")]
+        BKP["Respaldo Automático\n(sajona-backup / pg_dump)"]
+        TUNNEL --> PROXY
+        PROXY --> API
+        API --> DB
+        API --> AUD
+        BKP --> DB
+    end
+
+    ADMIN --> PWA
+    JEFE --> PWA
+    OP --> PWA
+    CONS --> PWA
+    PWA <-- "HTTPS REST / Sync Delta\n(/api/v1/*)" --> TUNNEL

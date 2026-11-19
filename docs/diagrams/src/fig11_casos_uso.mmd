@@ -1,0 +1,42 @@
+flowchart TB
+    subgraph ACT["Actores del Sistema"]
+        direction LR
+        OP(["Operario de Campo"])
+        JEFE(["Jefe de Proyecto"])
+        CONS(["Consulta / Gerencia"])
+        ADMIN(["Administrador"])
+    end
+
+    subgraph SYS["Sistema SAJONA PWA — Casos de Uso"]
+        direction TB
+        subgraph G_OP["Operación Agrícola (Offline-First)"]
+            direction LR
+            UC2(["UC-02 Propagación"])
+            UC3(["UC-03 Transplante Bolsa"])
+            UC4(["UC-04 Planta Madre"])
+            UC5(["UC-05 Transplante Campo"])
+            UC6(["UC-06 Plan Control"])
+            UC7(["UC-07 Cosecha y Post"])
+            UC8(["UC-08 Bajas"])
+        end
+        subgraph G_BOT["Seguridad, Sincronización y Analítica"]
+            direction LR
+            UC1(["UC-01 Autenticación"])
+            UC10(["UC-10 Sync y Conflictos"])
+            UC9(["UC-09 Reportes"])
+            UC11(["UC-11 Admin y Auditoría"])
+        end
+    end
+
+    OP --> G_OP
+    OP --> UC1
+    OP --> UC10
+    JEFE --> G_OP
+    JEFE --> UC1
+    JEFE --> UC10
+    JEFE --> UC9
+    CONS --> UC1
+    CONS --> UC9
+    ADMIN --> UC1
+    ADMIN --> UC9
+    ADMIN --> UC11

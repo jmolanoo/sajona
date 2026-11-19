@@ -1,0 +1,10 @@
+flowchart TB
+    subgraph FASE_A["Fase 1: Operación Inicial y Desconexión en Campo"]
+        direction LR
+        S1["1. Acceso inicial con red\nLogin + Sync Pull inicial\n(SW precachea App Shell)"] --> S2["2. Pérdida de señal en campo\nBanner 'Sin conexión'\nNavegación SPA desde SW"] --> S3["3. Operación Offline\nCrea lote / trasplante / baja\nen IndexedDB + Outbox"]
+    end
+    subgraph FASE_B["Fase 2: Continuidad, Reconexión y Auditoría"]
+        direction LR
+        S4["4. Cierre y reapertura sin red\nSesión offline segura vigente\nDatos locales intactos"] --> S5["5. Recuperación de señal\nPush ordenado + Idempotencia\n+ Pull incremental"] --> S6["6. Conflicto concurrente (si aplica)\nUI lado a lado en SyncCenter\ny Auditoría con correlation_id"]
+    end
+    FASE_A --> FASE_B

@@ -1,0 +1,129 @@
+erDiagram
+    FUNCIONARIOS ||--o| USUARIOS : "asocia (1:1)"
+    USUARIOS ||--|{ USUARIO_ROLES : "posee"
+    ROLES ||--|{ USUARIO_ROLES : "asigna"
+    ROLES ||--|{ PERMISO_ROLES : "incluye"
+    PERMISOS ||--|{ PERMISO_ROLES : "habilita"
+    USUARIOS ||--o{ REFRESH_TOKENS : "renueva"
+
+    VARIEDADES ||--o{ PROPAGACIONES : "clasifica"
+    PROPAGACIONES ||--o| PROPAGACIONES : "deriva_lote_origen"
+    PROPAGACIONES ||--o{ TRANSPLANTES : "recibe"
+    UBICACIONES ||--o{ TRANSPLANTES : "aloja"
+    PROPAGACIONES ||--o{ PLANTAS_MADRE : "agrupa"
+    PLANTAS_MADRE ||--o{ EXTRACCIONES_MATERIAL : "produce"
+    PROPAGACIONES ||--o{ EXTRACCIONES_MATERIAL : "contabiliza"
+    PROPAGACIONES ||--o{ CONTROLES_FASE : "supervisa"
+    TIPOS_COMPLICACION ||--o{ CONTROLES_FASE : "tipifica"
+    PROPAGACIONES ||--o{ COSECHAS : "cosecha"
+    TRANSPLANTES ||--o{ COSECHAS : "origina"
+    COSECHAS ||--o{ POST_COSECHAS : "procesa"
+    PROPAGACIONES ||--o{ BAJAS : "descuenta"
+    TIPOS_COMPLICACION ||--o{ BAJAS : "motiva"
+
+    FUNCIONARIOS {
+        uuid id PK
+        varchar nombres
+        varchar apellidos
+        varchar numero_identificacion UK
+        varchar correo UK
+        varchar telefono
+    }
+    USUARIOS {
+        uuid id PK
+        uuid funcionario_id FK
+        varchar username UK
+        varchar email UK
+        varchar password_hash "VARCHAR(255) Argon2id"
+        boolean activo
+        int version
+    }
+    PROPAGACIONES {
+        uuid id PK
+        varchar codigo_lote UK
+        date fecha_siembra
+        varchar tipo_propagacion
+        uuid variedad_id FK
+        varchar tipo_incorporacion
+        int cantidad_material
+        int version
+    }
+    TRANSPLANTES {
+        uuid id PK
+        uuid lote_id FK
+        varchar etapa "BOLSA | CAMPO"
+        varchar tipo_lote "PLANTA_MADRE | PLANTA_COMERCIAL"
+        date fecha_transplante
+        uuid ubicacion_id FK
+        varchar cama
+        int cantidad_buenas
+        int cantidad_malas
+        numeric porcentaje_buenas
+        int version
+    }
+    PLANTAS_MADRE {
+        uuid id PK
+        uuid lote_id FK
+        varchar numero_planta
+        date fecha_siembra
+        varchar lugar_siembra
+    }
+    EXTRACCIONES_MATERIAL {
+        uuid id PK
+        uuid lote_id FK
+        uuid planta_madre_id FK
+        date fecha_extraccion
+        int cantidad_esquejes
+        int cantidad_semillas
+    }
+    CONTROLES_FASE {
+        uuid id PK
+        uuid lote_id FK
+        varchar fase_cultivo
+        date fecha_inicio
+        date fecha_fin
+        date fecha_descarte
+        uuid tipo_complicacion_id FK
+        varchar estado_revision
+    }
+    COSECHAS {
+        uuid id PK
+        uuid lote_id FK
+        date fecha_suelo
+        date fecha_cosecha
+        int numero_plantas
+        int dias_floracion
+        numeric peso_verde
+    }
+    POST_COSECHAS {
+        uuid id PK
+        uuid cosecha_id FK
+        uuid lote_id FK
+        date fecha_ini_secado
+        date fecha_fin_secado
+        numeric peso_flor_verde
+        numeric peso_flor_seco
+        numeric porcentaje_cbd "NUMERIC(5,2)"
+        numeric porcentaje_thc "NUMERIC(5,2)"
+    }
+    BAJAS {
+        uuid id PK
+        uuid lote_id FK
+        date fecha_baja
+        int cantidad
+        varchar fase_cultivo
+    }
+    AUDIT_LOGS {
+        uuid id PK
+        varchar correlation_id
+        uuid usuario_id
+        varchar entidad
+        varchar operacion
+        varchar fuente "online | offline_sync"
+    }
+    PROCESSED_MUTATIONS {
+        uuid client_mutation_id PK
+        uuid entidad_id
+        varchar status
+        jsonb response_json
+    }

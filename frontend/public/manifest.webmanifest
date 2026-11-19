@@ -1,0 +1,33 @@
+{
+  "name": "SAJONA — Control y Trazabilidad Agrícola",
+  "short_name": "SAJONA",
+  "description": "PWA Mobile-First y Offline-First para seguimiento de siembra, clonación, cosecha y postcosecha de cannabis medicinal — SAJONA ADE.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#F8FAFC",
+  "theme_color": "#991B1B",
+  "lang": "es-CO",
+  "categories": ["productivity", "business"],
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

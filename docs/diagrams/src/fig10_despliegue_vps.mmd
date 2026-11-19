@@ -1,0 +1,36 @@
+flowchart TB
+    subgraph EXT["Dispositivos de Usuario (Internet / Campo)"]
+        MOB["Smartphone Android / iOS\n(PWA Instalada + IndexedDB + SW)"]
+        DESK["Navegador Escritorio\n(PWA + IndexedDB + SW)"]
+    end
+
+    CF["Cloudflare Edge\n(Terminación HTTPS TLS 1.3)"]
+
+    subgraph VPS["VPS Oracle Cloud (Ubuntu 24.04 x86_64 • Docker Compose)"]
+        subgraph NET_FE["Red Bridge: sajona-frontend-net"]
+            TUN["Contenedor: sajona-tunnel\n(cloudflare/cloudflared:2026.11.1)"]
+            PRX["Contenedor: sajona-proxy\n(nginx:1.27.3-alpine, user nginx:8080)\n127.0.0.1:8088 -> 8080"]
+            API["Contenedor: sajona-backend\n(python:3.12.7-slim, user sajona:8000)"]
+        end
+
+        subgraph NET_BE["Red Bridge Interna (internal: true): sajona-backend-net"]
+            DB["Contenedor: sajona-db\n(postgres:16.6-alpine)"]
+            BKP["Contenedor: sajona-backup\n(backup.sh diario + restore_test.sh)"]
+        end
+
+        VOL_PG[("Volumen: sajona_pgdata")]
+        VOL_AUD[("Volumen: sajona_audit_logs")]
+        VOL_BKP[("Volumen: sajona_backups")]
+
+        TUN --> PRX
+        PRX --> API
+        API --> DB
+        API --> VOL_AUD
+        DB --> VOL_PG
+        BKP --> DB
+        BKP --> VOL_BKP
+    end
+
+    MOB <-- "HTTPS / TLS 1.3" --> CF
+    DESK <-- "HTTPS / TLS 1.3" --> CF
+    CF <-- "Túnel Saliente Cifrado" --> TUN

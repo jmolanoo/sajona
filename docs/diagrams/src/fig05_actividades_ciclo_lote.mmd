@@ -1,0 +1,31 @@
+flowchart TB
+    subgraph TOP["Fase Inicial y Bifurcación"]
+        direction LR
+        START(["Inicio"]) --> PROP["1. Propagación\n(Lote, Variedad, Cant.)"]
+        PROP --> BOLSA["2. Transplante Bolsa\n(Buenas, Malas, %)"]
+        BOLSA --> ALERTA{"¿Merma\n> 20%?"}
+        ALERTA -- "Sí" --> NOTIF["Notificación Merma"] --> TIPO{"¿Tipo Lote?"}
+        ALERTA -- "No" --> TIPO
+    end
+
+    subgraph RAMA_PM["Ruta A: Planta Madre"]
+        direction LR
+        PM["3A. Plantas Madre"] --> EXT["4A. Extraer Esquejes\ny Semillas"]
+    end
+
+    subgraph RAMA_COM["Ruta B: Comercial y Campo"]
+        direction LR
+        CAMPO["3B. Transplante Campo\n(Terreno, Cama, Surcos)"] --> CTRL["4B. Plan Control /\nHistoria Clínica"] --> COS["5B. Cosecha\n(Días, Peso Verde)"] --> POST["6B. Post Cosecha\n(Secado, %CBD, %THC)"]
+    end
+
+    subgraph CIERRE["Control Transversal y Cierre"]
+        direction LR
+        BAJAS["Bajas por Fase\n(Descuenta Saldo Vivo)"] --> REP["7. Reportes y Trazabilidad\n(Excel, TXT, PDF)"]
+    end
+
+    TIPO -- "Planta Madre" --> RAMA_PM
+    EXT -- "Deriva Lote Hijo" --> PROP
+    TIPO -- "Comercial" --> RAMA_COM
+    RAMA_PM --> REP
+    RAMA_COM --> REP
+    PROP -. "Descarte en cualquier fase" .-> BAJAS

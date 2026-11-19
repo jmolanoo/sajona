@@ -1,0 +1,44 @@
+flowchart TB
+    subgraph MOD_SEG["Subdominio Seguridad y Gobernanza"]
+        C_AUTH["Autenticación JWT + Refresh\n(AuthService)"]
+        C_RBAC["Control de Acceso RBAC\n(rbac.py)"]
+        C_AUD["Bitácora Append-Only\n(DualAuditLogger)"]
+    end
+
+    subgraph MOD_CAT["Subdominio Parámetros Maestros"]
+        C_VAR["Catálogo Variedades"]
+        C_UBI["Catálogo Ubicaciones y Terrenos"]
+        C_COMP["Catálogo Complicaciones"]
+    end
+
+    subgraph MOD_PROD["Subdominio Trazabilidad Agrícola por Lote"]
+        C_PROP["M1: Propagación"]
+        C_BOLSA["M2: Transplante a Bolsa"]
+        C_MADRE["M3: Planta Madre y Extracciones"]
+        C_CAMPO["M4: Transplante a Campo"]
+        C_CTRL["M5: Plan Control e Historia Clínica"]
+        C_COS["M6: Cosecha"]
+        C_POST["M7: Post Cosecha y Cannabinoides"]
+        C_BAJA["M8: Bajas y Descartes"]
+    end
+
+    subgraph MOD_TRANS["Capacidades Transversales Offline-First"]
+        C_SYNC["Motor Sync Bidireccional\n(SyncService + Outbox IndexedDB)"]
+        C_REP["M9: Reportes Offline/Online\n(Excel, TXT, PDF, Trazabilidad 360°)"]
+    end
+
+    C_AUTH --> C_RBAC
+    C_RBAC --> MOD_PROD
+    C_RBAC --> MOD_CAT
+    MOD_CAT --> MOD_PROD
+    C_PROP --> C_BOLSA
+    C_BOLSA --> C_MADRE
+    C_BOLSA --> C_CAMPO
+    C_MADRE --> C_PROP
+    C_CAMPO --> C_CTRL
+    C_CAMPO --> C_COS
+    C_COS --> C_POST
+    C_PROP --> C_BAJA
+    MOD_PROD --> C_SYNC
+    MOD_PROD --> C_REP
+    C_SYNC --> C_AUD

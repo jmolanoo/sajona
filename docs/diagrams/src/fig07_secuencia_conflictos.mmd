@@ -1,0 +1,28 @@
+sequenceDiagram
+    actor A as Dispositivo A
+    actor B as Dispositivo B
+    participant API as SyncService FastAPI
+    participant PG as PostgreSQL 16
+    participant UI as SyncCenterModal A
+
+    Note over A,B: Ambos leen Lote LOT-2026-030 (v1)
+    B->>API: 1. PUT /entities/propagacion (v1)
+    API->>PG: 2. Actualiza a version=2
+    PG-->>B: 3. 200 OK (v2)
+
+    A->>A: 4. Edita mismo lote offline (base v1)
+    Note over A,PG: Dispositivo A recupera conectividad
+    A->>API: 5. POST /sync/push (base_version=1)
+    API->>PG: 6. Compara base v1 != vigente v2
+    API-->>A: 7. status=conflict + server_record v2
+    A->>UI: 8. Marca conflicto en Outbox y alerta
+    UI-->>A: 9. Muestra Cambio Local vs Servidor v2
+    alt Conservar cambios locales
+        A->>UI: 10a. Elige "Conservar mis cambios"
+        UI->>API: 11a. POST /sync/push (base_version=2)
+        API->>PG: 12a. Aplica v2 -> v3 + audita
+        API-->>A: 13a. status=applied (v3)
+    else Aceptar versión del servidor
+        A->>UI: 10b. Elige "Aceptar versión servidor"
+        UI->>UI: 11b. Reemplaza IndexedDB con v2
+    end
